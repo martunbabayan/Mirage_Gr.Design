@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MIRAGE — Sign in / Sign up</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&family=Orbitron:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/css/auth.css">
+</head>
+<body>
+  <main class="auth-page">
+    <section class="auth-shell">
+      <header class="topbar">
+        <div class="brand">
+          <img src="/assets/img/logo.png" class="logo-img" alt="Mirage logo">
+          <span class="brand-text">Mirage</span>
+        </div>
+
+        <nav class="nav-links">
+          <a href="/">Home</a>
+          <a href="/courses">Courses</a>
+          <a href="/works">Our works</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+        </nav>
+
+        <div id="authBox" class="auth-box">
+          Loading...
+        </div>
+      </header>
+
+      <div class="auth-content">
+        <div class="auth-left">
+          <span class="auth-badge">MIRAGE Access</span>
+
+          <h1 class="auth-title">
+            Join MIRAGE and start building your creative future
+          </h1>
+
+          <p class="auth-subtitle">
+            Sign up to explore courses, access your profile, and become part of the MIRAGE creative ecosystem.
+          </p>
+
+          <div id="nextInfo" class="next-info"></div>
+          <div id="statusBox"></div>
+        </div>
+
+        <div class="auth-right">
+          <div class="auth-grid">
+            <section class="auth-card">
+              <h2>Create account</h2>
+
+              <form id="registerForm" method="POST" action="/auth/register" class="auth-form">
+                <div class="form-row">
+                  <div class="field">
+                    <label for="first_name">First name</label>
+                    <input id="first_name" type="text" name="first_name" placeholder="Enter your first name" required />
+                  </div>
+
+                  <div class="field">
+                    <label for="last_name">Last name</label>
+                    <input id="last_name" type="text" name="last_name" placeholder="Enter your last name" required />
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label for="regEmail">Email</label>
+                  <input id="regEmail" type="email" name="email" placeholder="name@example.com" required />
+                  <div id="emailHint" class="hint"></div>
+                </div>
+
+                <div class="field">
+                  <label for="regPassword">Password</label>
+                  <input id="regPassword" type="password" name="password" placeholder="Create a strong password" required />
+                  <div class="password-note">
+                    Use at least 8 characters, 1 uppercase letter, 1 number, and 1 special character.
+                  </div>
+                </div>
+
+                <button type="submit" class="primary-btn">Create account</button>
+              </form>
+            </section>
+
+            <section class="auth-card">
+              <h2>Sign in</h2>
+
+              <form id="loginForm" method="POST" action="/auth/login" class="auth-form">
+                <div class="field">
+                  <label for="loginEmail">Email</label>
+                  <input id="loginEmail" type="email" name="email" placeholder="name@example.com" required />
+                </div>
+
+                <div class="field">
+                  <label for="loginPassword">Password</label>
+                  <input id="loginPassword" type="password" name="password" placeholder="Enter your password" required />
+                </div>
+
+                <button type="submit" class="primary-btn secondary-tone">Sign in</button>
+              </form>
+
+              <div class="divider"></div>
+
+              <div class="danger-zone" id="dangerZone" style="display: none;">
+                <h3>Danger Zone</h3>
+                <p>Delete your account permanently.</p>
+
+                <form method="POST" action="/api/me/delete" class="auth-form compact-form">
+                  <div class="field">
+                    <label for="deletePassword">Confirm password</label>
+                    <input id="deletePassword" type="password" name="password" placeholder="Confirm your password" required />
+                  </div>
+
+                  <button type="submit" class="danger-btn">Delete my account</button>
+                </form>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const next = params.get("next");
+
+    const nextInfo = document.getElementById("nextInfo");
+    const registerForm = document.getElementById("registerForm");
+    const loginForm = document.getElementById("loginForm");
+    const statusBox = document.getElementById("statusBox");
+
+    if (next) {
+      nextInfo.textContent = "After login or registration you will be redirected to: " + next;
+      registerForm.action = "/auth/register?next=" + encodeURIComponent(next);
+      loginForm.action = "/auth/login?next=" + encodeURIComponent(next);
+    } else {
+      nextInfo.textContent = "";
+    }
+
+    if (params.get("registered") === "1") {
+      statusBox.innerHTML = `<div class="auth-status success">Registration completed successfully. You can sign in now.</div>`;
+    } else if (params.get("logout") === "1") {
+      statusBox.innerHTML = `<div class="auth-status info">You have been logged out.</div>`;
+    } else if (params.get("deleted") === "1") {
+      statusBox.innerHTML = `<div class="auth-status success">Your account was deleted successfully.</div>`;
+    }
+  </script>
+
+  <script>
+    const COMMON_DOMAINS = [
+      "gmail.com",
+      "yahoo.com",
+      "outlook.com",
+      "hotmail.com",
+      "icloud.com",
+      "proton.me",
+      "protonmail.com",
+      "mail.ru",
+      "yandex.ru",
+      "bk.ru",
+      "inbox.ru",
+      "list.ru",
+      "rambler.ru"
+    ];
+
+    function levenshtein(a, b) {
+      a = a.toLowerCase();
+      b = b.toLowerCase();
+
+      const m = a.length;
+      const n = b.length;
+      const dp = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+
+      for (let i = 0; i <= m; i++) dp[i][0] = i;
+      for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+      for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+          const cost = a[i - 1] === b[j - 1] ? 0 : 1;
+          dp[i][j] = Math.min(
+            dp[i - 1][j] + 1,
+            dp[i][j - 1] + 1,
+            dp[i - 1][j - 1] + cost
+          );
+        }
+      }
+
+      return dp[m][n];
+    }
+
+    function splitEmail(value) {
+      const v = (value || "").trim();
+      const at = v.lastIndexOf("@");
+      if (at <= 0) return null;
+
+      const local = v.slice(0, at);
+      const domain = v.slice(at + 1);
+
+      if (!local || !domain) return null;
+      return { local, domain };
+    }
+
+    function isBasicEmailValid(value) {
+      return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test((value || "").trim());
+    }
+
+    function suggestDomain(domain) {
+      let best = null;
+      let bestScore = 999;
+
+      for (const d of COMMON_DOMAINS) {
+        const score = levenshtein(domain, d);
+        if (score < bestScore) {
+          bestScore = score;
+          best = d;
+        }
+      }
+
+      if (best && bestScore <= 2) return best;
+      return null;
+    }
+
+    const emailInput = document.getElementById("regEmail");
+    const hintEl = document.getElementById("emailHint");
+
+    function renderHint() {
+      const val = emailInput.value;
+      hintEl.textContent = "";
+
+      if (!val.trim()) return;
+
+      if (!isBasicEmailValid(val)) {
+        hintEl.textContent = "Please enter a valid email address.";
+        return;
+      }
+
+      const parts = splitEmail(val);
+      if (!parts) return;
+
+      const suggestion = suggestDomain(parts.domain);
+      if (suggestion && suggestion !== parts.domain.toLowerCase()) {
+        hintEl.innerHTML = `Did you mean <b>${parts.local}@${suggestion}</b>?`;
+      }
+    }
+
+    emailInput.addEventListener("input", renderHint);
+    emailInput.addEventListener("blur", renderHint);
+  </script>
+
+  <script>
+    fetch("/api/me")
+      .then((r) => {
+        if (!r.ok) throw new Error("not logged");
+        return r.json();
+      })
+      .then(() => {
+        document.getElementById("authBox").innerHTML = `
+          <a href="/profile" class="auth-link auth-link-outline">My profile</a>
+          <a href="/auth/logout" class="auth-link auth-link-outline small-auth-btn">Logout</a>
+        `;
+        document.getElementById("dangerZone").style.display = "block";
+      })
+      .catch(() => {
+        document.getElementById("authBox").innerHTML = `
+          <a href="/auth" class="auth-link auth-link-outline">SIGN IN / UP</a>
+        `;
+        document.getElementById("dangerZone").style.display = "none";
+      });
+  </script>
+</body>
+</html>

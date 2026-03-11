@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MIRAGE — Courses</title>
+</head>
+<body>
+  <h1>Courses — Placeholder</h1>
+
+  <nav style="display:flex; justify-content:space-between;">
+  <div>
+    <a href="/">Home</a> |
+    <a href="/courses">Courses</a> |
+    <a href="/works">Our Works</a> |
+    <a href="/about">About</a> |
+    <a href="/contact">Contact</a>
+  </div>
+
+  <div id="authBox">
+    <!-- сюда JS подставит кнопку -->
+  </div>
+</nav>
+
+<hr />
+
+
+  <hr />
+  <p>Пока заглушка. Потом добавим контент.</p>
+
+<script>
+  fetch("/api/me")
+    .then(r => {
+      if (!r.ok) throw new Error("not logged");
+      return r.json();
+    })
+    .then(data => {
+      document.getElementById("authBox").innerHTML = `
+        <a href="/profile">My profile</a> |
+        <a href="/auth/logout">Logout</a>
+      `;
+    })
+    .catch(() => {
+      document.getElementById("authBox").innerHTML = `
+        <a href="/auth">Sign in / Sign up</a>
+      `;
+    });
+</script>
+
+
+</body>
+</html>
