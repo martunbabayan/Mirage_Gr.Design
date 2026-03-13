@@ -1,8 +1,0 @@
-node_modules/
-**/node_modules/
-.venv/
-.idea/
-.env
-*.log
-.DS_Store
-__MACOSX/
